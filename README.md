@@ -146,7 +146,6 @@ Rerun the notebook ML scoring cell to refresh the `booking_ml_scores` table befo
 | LLM fallback | Run without `OPENAI_API_KEY` | Assistant still responds with `Provider: fallback` | Pass |
 | API docs | Open `/docs` | FastAPI Swagger UI loads endpoint documentation and request schemas | Pass |
 | OpenAPI schema | Open `/openapi.json` | Machine-readable API schema is available for review or Postman import | Pass |
-| Docker | `docker compose up --build` | Containerized app starts with bundled `noshow.db` and `LLM_PROMPT.md` | Pending reviewer environment |
 
 ## Submission Safety
 
