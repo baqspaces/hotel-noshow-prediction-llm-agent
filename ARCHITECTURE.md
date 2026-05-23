@@ -18,7 +18,7 @@ flowchart LR
 
 ## Data Flow
 
-The notebook loads `noshow.db`, cleans the booking fields, standardizes month values, parses price values, creates customer and price-band features, and trains five real ML models plus a dummy baseline. The five real model probabilities are appended to `final_scored_df`.
+The notebook loads `noshow.db`, cleans the booking fields, standardizes month values, parses price values, creates customer and price-band features, and trains five real ML models plus a dummy baseline. The five real model scores are appended to `final_scored_df`.
 
 The Random Forest ML model has the highest Precision-Recall Area under the Curve (PR-AUC) score and is selected to be displayed as the `risk_score` in the web dashboard. We also created categorical risk labels `Low`, `Medium`, and `High` according to the quantile distribution of the Random Forest ML model risk score. The notebook persists the final scored dataframe into SQLite as `booking_ml_scores`.
 
@@ -53,7 +53,7 @@ flowchart LR
     API --> ASSIST[AI Assistant Orchestration]
 ```
 
-The dashboard uses REST endpoints for KPIs, segment drill-downs, risk queue rows, and assistant answers. A WebSocket stream refreshes summary KPIs. The API includes health, monitoring, authentication, rate limiting, OpenAPI documentation, and Docker support.
+The web app dashboard uses REST endpoints to query a SQLite db, segment drill-downs, operational queue rows, and assistant answers. A WebSocket stream refreshes summary KPIs. The API includes health, monitoring, authentication, rate limiting, OpenAPI documentation, and Docker support.
 
 ## Deployment Strategy
 
