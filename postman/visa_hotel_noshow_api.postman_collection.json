@@ -1,0 +1,423 @@
+{
+  "info": {
+    "_postman_id": "b5d9884c-9f2f-4e4d-a0b6-visa-noshow-demo",
+    "name": "Hotel No-Show AI API",
+    "description": "Postman collection for the Hotel No-Show Prediction with AI-Powered Insights Dashboard. Start the FastAPI app first, run Auth / Login, then run the protected analytics, risk, and assistant requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Monitoring",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Public health check showing app status, environment, raw booking table, and active analytics table."
+          }
+        },
+        {
+          "name": "Monitoring",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/monitoring",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "monitoring"
+              ]
+            },
+            "description": "Protected monitoring endpoint with cache and database pool status."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('login returns access token', function () {",
+                  "  pm.expect(json.access_token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "pm.collectionVariables.set('access_token', json.access_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"manager\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Returns a bearer token for protected endpoints. The test script saves it into the collection variable `access_token`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Summary Metrics",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "summary"
+              ]
+            },
+            "description": "Dashboard KPI summary including bookings, no-show rate, and revenue at risk."
+          }
+        },
+        {
+          "name": "Available Dimensions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/dimensions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dimensions"
+              ]
+            },
+            "description": "Returns segment dimensions available for dashboard drill-down."
+          }
+        },
+        {
+          "name": "Segment Summary - Branch",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/segments?dimension=branch&min_bookings=20&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "segments"
+              ],
+              "query": [
+                {
+                  "key": "dimension",
+                  "value": "branch"
+                },
+                {
+                  "key": "min_bookings",
+                  "value": "20"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Returns no-show and revenue metrics by selected segment dimension."
+          }
+        },
+        {
+          "name": "Segment Summary - First-Time Customer Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/segments?dimension=customer_status&min_bookings=20&limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "segments"
+              ],
+              "query": [
+                {
+                  "key": "dimension",
+                  "value": "customer_status"
+                },
+                {
+                  "key": "min_bookings",
+                  "value": "20"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Segment summary using the categorical equivalent of `first_time_flag`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Risk",
+      "item": [
+        {
+          "name": "High-Risk Bookings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/bookings/high-risk?limit=25&risk_band=High",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "high-risk"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "25"
+                },
+                {
+                  "key": "risk_band",
+                  "value": "High"
+                }
+              ]
+            },
+            "description": "Operational queue rows with risk score, expected exposure, and intervention recommendation."
+          }
+        },
+        {
+          "name": "Predict Booking Risk",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branch\": \"Changi\",\n  \"platform\": \"Website\",\n  \"country\": \"China\",\n  \"room\": \"Single\",\n  \"first_time_flag\": 1,\n  \"customer_status\": \"First-time\",\n  \"price\": 250\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/predict",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "predict"
+              ]
+            },
+            "description": "Returns a lightweight risk estimate and intervention recommendation for a single booking-like payload."
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Assistant",
+      "item": [
+        {
+          "name": "Ask Assistant - Executive Summary",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Give me an executive summary of no-show risk.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/assistant/query",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assistant",
+                "query"
+              ]
+            },
+            "description": "Asks the LLM/fallback assistant for grounded insights using retrieved dashboard evidence."
+          }
+        },
+        {
+          "name": "Ask Assistant - Interventions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"What actions should we take for high-risk bookings?\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/assistant/query",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assistant",
+                "query"
+              ]
+            },
+            "description": "Tests operational intervention recommendations and assistant grounding."
+          }
+        }
+      ]
+    }
+  ]
+}
