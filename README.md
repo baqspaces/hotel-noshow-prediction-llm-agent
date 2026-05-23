@@ -115,6 +115,7 @@ If PowerShell blocks `npm`, use `npm.cmd`. This app does not require npm to run.
 
 - `OVERALL_ARCHITECTURE.md`: system architecture, data flow, model lifecycle, and deployment strategy
 - `API_DOCUMENTATION.md`: endpoint guide with request and response examples
+- `postman/visa_hotel_noshow_api.postman_collection.json`: Postman collection for manual API testing
 - `AGENT_ARCHITECTURE.md`: agent roles, coordination logic, intervention policy, and invocation flow
 - `AGENT_EVALUATION.md`: agent performance and reliability evaluation report
 - `LLM_PROMPT.md`: editable assistant instructions, grounding rules, and response format
