@@ -106,4 +106,4 @@ The `agent_trace` field records each orchestration step so reviewers can see whi
 | `src/analytics.py` | Summary metrics, segment insights, operational risk queue, and prediction scores |
 | `frontend/app.js` | Sends assistant questions and renders provider, answer, and trace |
 | `LLM_PROMPT.md` | Editable LLM instructions |
-| `AGENT_PROTOCOL.md` | Agent protocol, roles, reliability checks, and limitations |
+| `AGENT_EVALUATION.md` | Agent evaluation and reliability tests |
