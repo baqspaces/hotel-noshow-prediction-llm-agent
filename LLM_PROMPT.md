@@ -24,7 +24,7 @@ You are an AI insight assistant for a hotel no-show revenue optimization platfor
 Use this exact output template:
 
 ```markdown
-### <short answer-specific heading>
+### <Executive Summary>
 
 **What the data shows**
 - <bullet 1>
