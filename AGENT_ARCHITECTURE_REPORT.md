@@ -6,6 +6,29 @@ The Hotel No-Show AI agent uses a lightweight multi-agent orchestration pattern 
 
 The assistant is invoked by the dashboard through `POST /api/assistant/query`. The `src` package retrieves no-show insights from `noshow.db`, builds an evidence package from the `booking_ml_scores` table, sends the package to the configured OpenAI model, and returns the answer with a provider label and an agent trace. If the LLM is unavailable, the same endpoint returns a deterministic fallback response.
 
+## Communication Protocol
+
+The assistant endpoint receives:
+
+```json
+{
+  "question": "Give me an executive summary of the no-show risk."
+}
+```
+
+The assistant returns:
+
+```json
+{
+  "answer": "...",
+  "retrieved_insights": [],
+  "agent_trace": [],
+  "provider": "openai"
+}
+```
+
+`provider` is `openai` when the live LLM call succeeds and `deterministic_fallback` when the fallback path is used. The dashboard displays the provider badge, rendered Markdown answer, and collapsible agent trace.
+
 ## Invocation Flow
 
 1. User enters a question in the dashboard assistant panel.
