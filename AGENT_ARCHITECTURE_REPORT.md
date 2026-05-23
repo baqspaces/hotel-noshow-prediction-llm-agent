@@ -72,25 +72,7 @@ The assistant returns a `provider` field:
 - `openai`: the live LLM call succeeded
 - `deterministic_fallback`: the LLM call was unavailable and fallback logic answered instead
 
-The dashboard maps `deterministic_fallback` to the display label `fallback`. The `agent_trace` field records each orchestration step so reviewers can see which roles ran and whether the final answer came from OpenAI or fallback logic.
-
-## Why This Counts As Agentic Orchestration
-
-This is a single-orchestrator multi-role agent pattern. The agents are not autonomous background workers, but they do represent distinct responsibilities in the reasoning pipeline. This is common in production LLM applications where teams want controlled evidence retrieval, deterministic guardrails, traceability, and a small number of LLM calls.
-
-The architecture can scale into a heavier multi-agent system by turning each role into a class or service, adding separate prompts per agent, introducing tool calls, adding memory, and using an evaluation harness for agent outputs.
-
-## Production Extension Path
-
-Recommended next steps for a production implementation:
-
-- store prompt versions and model settings in a model or prompt registry
-- add structured JSON outputs for intervention recommendations
-- evaluate responses against a prompt test set
-- log provider, latency, retrieved insight IDs, and fallback reason
-- add human approval for high-impact interventions such as deposits or overbooking
-- monitor drift in booking segments and no-show rates
-- add role-specific prompts or separate LLM calls when the workflow becomes more complex
+The `agent_trace` field records each orchestration step so reviewers can see which roles ran and whether the final answer came from LLM models (.e.g OpenAI) or fallback logic.
 
 ## Key Files
 
@@ -98,7 +80,7 @@ Recommended next steps for a production implementation:
 |---|---|
 | `src/assistant.py` | Main agent orchestration and OpenAI/fallback call |
 | `src/main.py` | FastAPI endpoint that invokes the assistant |
-| `src/analytics.py` | Summary metrics, segment insights, risk queue, and prediction estimates |
+| `src/analytics.py` | Summary metrics, segment insights, operational risk queue, and prediction scores |
 | `frontend/app.js` | Sends assistant questions and renders provider, answer, and trace |
 | `LLM_PROMPT.md` | Editable LLM instructions |
 | `AGENT_PROTOCOL.md` | Agent protocol, roles, reliability checks, and limitations |
