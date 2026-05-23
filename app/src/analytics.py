@@ -3,6 +3,8 @@ from fastapi import HTTPException
 from .cache import cache
 from .database import BOOKING_TABLE, assert_known_column, fetch_all_dicts, fetch_one_dict, table_columns, table_exists
 
+# determines which table in the noshow.db that gets queried
+SCORED_BOOKING_TABLE = "booking_ml_scores"
 
 SEGMENT_DIMENSIONS = [
     "branch",
@@ -15,7 +17,7 @@ SEGMENT_DIMENSIONS = [
     "price_band",
 ]
 MONTH_COLUMNS = {"booking_month", "arrival_month", "checkout_month"}
-SCORED_BOOKING_TABLE = "booking_ml_scores"
+
 ML_SCORE_COLUMNS = [
     "ml_risk_logistic_regression",
     "ml_risk_decision_tree",
