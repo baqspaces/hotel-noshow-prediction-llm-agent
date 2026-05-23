@@ -6,7 +6,7 @@ This project takes data from the noshow.db to:
 3. creates an interactive web app dashboard showing an overview of key metrics and
 4. contains an LLM AI assistant that helps summarise key insights and recommendations.
 
-## What It Demonstrates
+## What It Contains
 
 - `src/` FastAPI package with OpenAPI docs at `/docs`
 - JWT-style bearer authentication
