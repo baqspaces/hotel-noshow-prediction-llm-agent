@@ -31,10 +31,11 @@ def _retrieve(question: str) -> list[dict]:
 def _intervention_for_booking(row: dict) -> str:
     probability = row.get("predicted_no_show_probability", 0)
     revenue = row.get("expected_revenue_at_risk", 0)
-    customer_type = str(row.get("customer_type", "")).lower()
+    first_time_flag = row.get("first_time_flag")
+    customer_status = str(row.get("customer_status", "")).lower()
     if probability >= 0.4 and revenue >= 500:
         return "priority staff review, pre-arrival confirmation, and deposit or guarantee check"
-    if "first" in customer_type:
+    if first_time_flag == 1 or "first" in customer_status:
         return "automated reminder plus simple confirmation link for first-time customer"
     if probability >= 0.35:
         return "automated reminder 48 hours before arrival and same-day reconfirmation"
@@ -91,7 +92,8 @@ def _build_llm_context(question: str, retrieved: list[dict]) -> str:
             "platform": row.get("platform"),
             "country": row.get("country"),
             "room": row.get("room"),
-            "customer_type": row.get("customer_type"),
+            "first_time_flag": row.get("first_time_flag"),
+            "customer_status": row.get("customer_status"),
             "recommended_playbook": _intervention_for_booking(row),
         }
         for row in bookings
