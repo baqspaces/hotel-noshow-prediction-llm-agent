@@ -10,10 +10,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/src ./src
 COPY app/frontend ./frontend
-COPY app/LLM_PROMPT.md ./LLM_PROMPT.md
+COPY LLM_PROMPT.md ./LLM_PROMPT.md
 COPY noshow.db ./noshow.db
 
 ENV DATABASE_URL=sqlite:////app/noshow.db
 EXPOSE 8000
 
-CMD ["uvicorn", "src.main:app", "--host", "127.0.0.1", "--port", "8000"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
