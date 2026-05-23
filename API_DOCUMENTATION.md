@@ -95,7 +95,7 @@ Authorization: Bearer <token>
 
 Returns segment-level bookings, no-show rate, average price, and observed revenue at risk.
 
-## Risk Queue
+## Operational Queue
 
 ### Risk-Ranked Bookings
 
@@ -142,7 +142,7 @@ Request:
 }
 ```
 
-Returns a lightweight booking risk estimate from historical rows in `booking_ml_scores` that match the supplied segment fields. This endpoint is intended for demo-time operational scoring when model artifacts are not deployed as a separate online inference service.
+Returns a lightweight booking no-show risk estimate from historical rows in `booking_ml_scores` that match the supplied segment fields. This endpoint is intended for demo-time operational scoring when model artifacts are not deployed as a separate online inference service.
 
 Response includes:
 
