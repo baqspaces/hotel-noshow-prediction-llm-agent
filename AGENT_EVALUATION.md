@@ -2,9 +2,7 @@
 
 ## Evaluation Objective
 
-This report evaluates whether the AI assistant produces grounded, useful, and traceable answers for hotel no-show management questions. The evaluation focuses on the multi-agent orchestration layer in `src/assistant.py`, including retrieved evidence, LLM response quality, deterministic fallback behavior, and dashboard observability.
-
-This is different from a general QA report. QA validates that the overall application works end to end. Agent evaluation validates that the assistant answers well, stays grounded in the supplied data, and fails safely.
+This report evaluates whether the AI agent produces grounded, useful, and traceable answers for hotel no-show management questions. The evaluation focuses on the multi-agent orchestration layer in `src/assistant.py`, including retrieved evidence, LLM response quality, deterministic fallback behavior, and dashboard observability.
 
 ## Test Method
 
@@ -46,14 +44,14 @@ Each test prompt can be run from the dashboard assistant panel or through `POST 
 - Recommendations are policy heuristics and should be validated through controlled operational experiments.
 - LLM output quality depends on the configured model, prompt, and retrieved evidence.
 
-## Production Evaluation Plan
+## Future Production Plan
 
 For a production deployment, the agent evaluation should be expanded with:
 
-- a fixed prompt regression test set
-- automated checks for forbidden unsupported claims
-- latency and error-rate monitoring by provider
 - human review of high-impact intervention recommendations
-- comparison between fallback and LLM responses
-- prompt/model version tracking
+- automated checks for forbidden unsupported claims
 - periodic review when booking patterns or no-show rates drift
+- comparison between fallback and LLM responses
+- a fixed prompt regression test set
+- latency and error-rate monitoring by provider
+- prompt/model version tracking
