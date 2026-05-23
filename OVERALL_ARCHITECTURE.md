@@ -37,7 +37,7 @@ flowchart TD
     G --> H[Persist model scores in booking_ml_scores table]
 ```
 
-The current implementation demonstrates the end-to-end prototype lifecycle: the notebook trains candidate models, compares evaluation metrics, selects the best model, scores the full dataset, and persists booking-level scores for the FastAPI dashboard. This is sufficient for a local assessment demo because reviewers can trace how the model output moves from notebook experimentation into the operational web app.
+The current implementation demonstrates the end-to-end prototype lifecycle: the notebook trains candidate models, compares evaluation metrics, selects the best model, scores the full dataset, and persists booking-level scores for the FastAPI dashboard. 
 
 For a production MLOps lifecycle, this flow would be extended with:
 
