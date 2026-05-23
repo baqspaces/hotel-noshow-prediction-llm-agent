@@ -16,7 +16,7 @@ DEFAULT_DB_PATH = APP_DIR.parent / "noshow.db"
 
 
 class Settings(BaseSettings):
-    app_name: str = "No-Show Intelligence Platform"
+    app_name: str = "Hotel No-Show Prediction AI Insights Assistant"
     environment: str = Field(default="development", alias="APP_ENV")
     database_url: str = Field(
         default=f"sqlite:///{DEFAULT_DB_PATH.as_posix()}",
