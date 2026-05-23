@@ -9,7 +9,7 @@ SEGMENT_DIMENSIONS = [
     "platform",
     "country",
     "room",
-    "customer_type",
+    "customer_status",
     "booking_month",
     "arrival_month",
     "price_band",
@@ -42,6 +42,13 @@ def normalize_month(value) -> str | None:
 
 
 def normalized_dimension_expr(dimension: str) -> str:
+    if dimension == "customer_status":
+        return (
+            "CASE "
+            "WHEN first_time_flag = 1 THEN 'First-time' "
+            "WHEN first_time_flag = 0 THEN 'Returning' "
+            "ELSE 'Missing' END"
+        )
     if dimension not in MONTH_COLUMNS:
         return f"COALESCE(CAST({dimension} AS TEXT), 'Missing')"
     cleaned = f"LOWER(TRIM(CAST({dimension} AS TEXT)))"
@@ -54,7 +61,14 @@ def normalized_dimension_expr(dimension: str) -> str:
 
 def available_dimensions() -> list[str]:
     columns = set(table_columns(active_analytics_table()))
-    return [column for column in SEGMENT_DIMENSIONS if column in columns]
+    dimensions = []
+    for column in SEGMENT_DIMENSIONS:
+        if column == "customer_status":
+            if "first_time_flag" in columns:
+                dimensions.append(column)
+        elif column in columns:
+            dimensions.append(column)
+    return dimensions
 
 
 def summary_metrics() -> dict:
@@ -84,7 +98,10 @@ def summary_metrics() -> dict:
 def segment_summary(dimension: str, min_bookings: int = 20, limit: int = 20) -> list[dict]:
     try:
         table_name = active_analytics_table()
-        dimension = assert_known_column(dimension, table_name)
+        if dimension != "customer_status":
+            dimension = assert_known_column(dimension, table_name)
+        elif "first_time_flag" not in table_columns(table_name):
+            raise ValueError("Unknown column: customer_status")
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -144,7 +161,7 @@ def high_risk_bookings(limit: int = 50, risk_band: str | None = None) -> list[di
             "platform",
             "country",
             "room",
-            "customer_type",
+            "first_time_flag",
             "price",
             "price_numeric",
             "no_show",
@@ -156,6 +173,13 @@ def high_risk_bookings(limit: int = 50, risk_band: str | None = None) -> list[di
         ]
         if column in columns
     ]
+    if "first_time_flag" in columns:
+        selected.append(
+            "CASE "
+            "WHEN first_time_flag = 1 THEN 'First-time' "
+            "WHEN first_time_flag = 0 THEN 'Returning' "
+            "ELSE 'Missing' END AS customer_status"
+        )
     where_clause = "WHERE risk_band = :risk_band" if normalized_band else ""
     params = {"risk_band": normalized_band} if normalized_band else {}
     rows = fetch_all_dicts(
@@ -181,16 +205,28 @@ def predict(payload: dict) -> dict:
     columns = set(table_columns(SCORED_BOOKING_TABLE))
     filters = []
     params = {}
-    for column in ["branch", "platform", "country", "room", "customer_type"]:
+    for column in ["branch", "platform", "country", "room"]:
         value = payload.get(column)
         if value is not None and column in columns:
             filters.append(f"LOWER(CAST({column} AS TEXT)) = LOWER(:{column})")
             params[column] = str(value)
 
+    first_time_flag = payload.get("first_time_flag")
+    customer_status = payload.get("customer_status")
+    if first_time_flag is None and customer_status is not None:
+        status_text = str(customer_status).strip().lower()
+        if status_text in {"first-time", "first time", "first", "yes", "true", "1"}:
+            first_time_flag = 1
+        elif status_text in {"returning", "repeat", "no", "false", "0"}:
+            first_time_flag = 0
+    if first_time_flag is not None and "first_time_flag" in columns:
+        filters.append("CAST(first_time_flag AS INTEGER) = :first_time_flag")
+        params["first_time_flag"] = int(first_time_flag)
+
     if not filters:
         raise HTTPException(
             status_code=400,
-            detail="Provide at least one segment field: branch, platform, country, room, or customer_type.",
+            detail="Provide at least one segment field: branch, platform, country, room, or first_time_flag.",
         )
 
     where_clause = " AND ".join(filters)

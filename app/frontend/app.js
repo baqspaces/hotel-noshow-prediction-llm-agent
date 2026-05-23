@@ -7,7 +7,7 @@ const state = {
 const $ = (id) => document.getElementById(id);
 const fmtPct = (value) => `${((Number(value) || 0) * 100).toFixed(1)}%`;
 const fmtMoney = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
-const fmtCurrency = (value) => `$${fmtMoney(value)}`;
+const fmtCurrency = (value) => `USD ${fmtMoney(value)}`;
 
 function escapeHtml(value) {
   return String(value || "")
@@ -67,6 +67,17 @@ function renderMarkdown(markdown) {
 
   closeList();
   return html.join("");
+}
+
+function dimensionLabel(dimension) {
+  return dimension === "customer_status" ? "Customer status" : dimension;
+}
+
+function customerStatus(row) {
+  if (row.customer_status) return row.customer_status;
+  if (Number(row.first_time_flag) === 1) return "First-time";
+  if (Number(row.first_time_flag) === 0) return "Returning";
+  return "";
 }
 
 function renderAssistantResponse(data) {
@@ -133,7 +144,7 @@ function renderMetrics(summary) {
 }
 
 function fillDimensionControls(dimensions) {
-  const options = dimensions.map((dimension) => `<option value="${dimension}">${dimension}</option>`).join("");
+  const options = dimensions.map((dimension) => `<option value="${dimension}">${dimensionLabel(dimension)}</option>`).join("");
   $("dimensionSelect").innerHTML = options;
 }
 
@@ -160,7 +171,7 @@ async function loadSegments() {
   const dimension = $("dimensionSelect").value || "branch";
   const minBookings = Number($("minBookings").value || 20);
   const data = await api(`/api/segments?dimension=${encodeURIComponent(dimension)}&min_bookings=${minBookings}&limit=12`);
-  $("segmentTitle").textContent = `${dimension} no-show rates`;
+  $("segmentTitle").textContent = `${dimensionLabel(dimension)} no-show rates`;
   const maxRate = Math.max(...data.rows.map((row) => Number(row.no_show_rate || 0)), 0.01);
   $("segmentBars").innerHTML = data.rows
     .map((row) => {
@@ -190,7 +201,7 @@ async function loadRisk() {
           <td>${row.booking_id ?? ""}</td>
           <td>${row.branch ?? ""}</td>
           <td>${row.room ?? ""}</td>
-          <td>${row.customer_type ?? ""}</td>
+          <td>${customerStatus(row)}</td>
           <td>${row.country ?? ""}</td>
           <td><span class="risk-pill risk-${band}">${row.risk_band}<br>${fmtPct(row.predicted_no_show_probability)}</span></td>
           <td>${fmtPct(row.risk_score)}</td>

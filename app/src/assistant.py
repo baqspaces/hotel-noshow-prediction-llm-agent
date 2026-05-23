@@ -1,20 +1,40 @@
 from pathlib import Path
+import re
 
 from .analytics import high_risk_bookings, summary_metrics, top_insights
 from .config import get_settings
 
 
 APP_DIR = Path(__file__).resolve().parents[1]
-DEFAULT_SYSTEM_PROMPT = """You are the AI insight assistant for a hotel no-show revenue optimization platform.
-Answer as a concise executive analytics partner. Use only the supplied booking metrics, retrieved
-insights, and high-risk booking examples. Do not invent fields, metrics, or root causes."""
+PROJECT_DIR = Path(__file__).resolve().parents[2]
+PROMPT_PATHS = [PROJECT_DIR / "LLM_PROMPT.md", APP_DIR / "LLM_PROMPT.md"]
 
 
 def _load_system_prompt() -> str:
-    prompt_path = APP_DIR / "LLM_PROMPT.md"
-    if prompt_path.exists():
-        return prompt_path.read_text(encoding="utf-8")
-    return DEFAULT_SYSTEM_PROMPT
+    for prompt_path in PROMPT_PATHS:
+        if prompt_path.exists():
+            return prompt_path.read_text(encoding="utf-8")
+    searched = ", ".join(str(path) for path in PROMPT_PATHS)
+    raise RuntimeError(f"LLM_PROMPT.md not found. Checked: {searched}")
+
+
+def _markdown_section(markdown: str, heading: str) -> str:
+    pattern = rf"^## {re.escape(heading)}\s*$([\s\S]*?)(?=^## |\Z)"
+    match = re.search(pattern, markdown, flags=re.MULTILINE)
+    return match.group(1).strip() if match else ""
+
+
+def _response_format_instructions(prompt: str) -> str:
+    section = _markdown_section(prompt, "Response Format")
+    return section or prompt
+
+
+def _required_section_headings(prompt: str) -> list[str]:
+    response_format = _response_format_instructions(prompt)
+    headings = re.findall(r"`(\*\*[^`]+\*\*)`", response_format)
+    if headings:
+        return headings
+    return re.findall(r"^(\*\*[^*\n]+\*\*)$", response_format, flags=re.MULTILINE)
 
 
 def _retrieve(question: str) -> list[dict]:
@@ -31,10 +51,11 @@ def _retrieve(question: str) -> list[dict]:
 def _intervention_for_booking(row: dict) -> str:
     probability = row.get("predicted_no_show_probability", 0)
     revenue = row.get("expected_revenue_at_risk", 0)
-    customer_type = str(row.get("customer_type", "")).lower()
+    first_time_flag = row.get("first_time_flag")
+    customer_status = str(row.get("customer_status", "")).lower()
     if probability >= 0.4 and revenue >= 500:
         return "priority staff review, pre-arrival confirmation, and deposit or guarantee check"
-    if "first" in customer_type:
+    if first_time_flag == 1 or "first" in customer_status:
         return "automated reminder plus simple confirmation link for first-time customer"
     if probability >= 0.35:
         return "automated reminder 48 hours before arrival and same-day reconfirmation"
@@ -78,7 +99,7 @@ def _fallback_answer(question: str, retrieved: list[dict], trace: list[dict]) ->
     }
 
 
-def _build_llm_context(question: str, retrieved: list[dict]) -> str:
+def _build_llm_context(question: str, retrieved: list[dict], prompt: str) -> str:
     metrics = summary_metrics()
     bookings = high_risk_bookings(limit=5)
     booking_examples = [
@@ -91,17 +112,27 @@ def _build_llm_context(question: str, retrieved: list[dict]) -> str:
             "platform": row.get("platform"),
             "country": row.get("country"),
             "room": row.get("room"),
-            "customer_type": row.get("customer_type"),
+            "first_time_flag": row.get("first_time_flag"),
+            "customer_status": row.get("customer_status"),
             "recommended_playbook": _intervention_for_booking(row),
         }
         for row in bookings
     ]
     return (
         f"User question:\n{question}\n\n"
+        f"Response format instructions from LLM_PROMPT.md:\n{_response_format_instructions(prompt)}\n\n"
         f"Executive summary metrics:\n{metrics}\n\n"
         f"Retrieved EDA insights:\n{retrieved}\n\n"
         f"High-risk booking examples:\n{booking_examples}"
     )
+
+
+def _matches_response_format(answer: str, prompt: str) -> bool:
+    stripped = answer.strip()
+    if not stripped.startswith("### "):
+        return False
+    required_headings = _required_section_headings(prompt)
+    return all(heading in stripped for heading in required_headings)
 
 
 def _call_openai_assistant(question: str, retrieved: list[dict]) -> str:
@@ -120,13 +151,31 @@ def _call_openai_assistant(question: str, retrieved: list[dict]) -> str:
         project=settings.openai_project_id,
         timeout=settings.openai_timeout_seconds,
     )
+    prompt = _load_system_prompt()
+    context = _build_llm_context(question, retrieved, prompt)
     response = client.responses.create(
         model=settings.openai_model,
-        instructions=_load_system_prompt(),
-        input=_build_llm_context(question, retrieved),
+        instructions=prompt,
+        input=context,
         max_output_tokens=700,
     )
-    return response.output_text.strip()
+    answer = response.output_text.strip()
+    if _matches_response_format(answer, prompt):
+        return answer
+
+    repair_response = client.responses.create(
+        model=settings.openai_model,
+        instructions=prompt,
+        input=(
+            "Rewrite the previous answer so it follows the Response Format section in LLM_PROMPT.md exactly. "
+            "Do not add new facts. Use only the supplied context and the previous answer.\n\n"
+            f"Response format instructions from LLM_PROMPT.md:\n{_response_format_instructions(prompt)}\n\n"
+            f"Supplied context:\n{context}\n\n"
+            f"Previous answer:\n{answer}"
+        ),
+        max_output_tokens=700,
+    )
+    return repair_response.output_text.strip()
 
 
 def answer_question(question: str) -> dict:
