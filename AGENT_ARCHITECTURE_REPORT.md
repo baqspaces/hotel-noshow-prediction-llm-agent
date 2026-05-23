@@ -1,16 +1,16 @@
-# No-Show Intelligence Agent Architecture
+# Hotel No-Show Prediction AI Agent Architecture
 
 ## Executive Overview
 
-The No-Show Intelligence Platform uses a lightweight multi-agent orchestration pattern to answer hotel operations questions with grounded booking evidence. The agents are logical roles inside one controlled Python workflow rather than independent services. This keeps the prototype auditable, easy to run, and aligned with enterprise review expectations.
+The Hotel No-Show AI agent uses a lightweight multi-agent orchestration pattern to answer hotel no-show prediction questions. The agents are logical roles inside one controlled Python workflow rather than independent services. This keeps the prototype auditable, easy to run, and aligned with enterprise review expectations.
 
 The assistant is invoked by the dashboard through `POST /api/assistant/query`. The `src` package retrieves no-show insights from `noshow.db`, builds an evidence package from the `booking_ml_scores` table, sends the package to the configured OpenAI model, and returns the answer with a provider label and an agent trace. If the LLM is unavailable, the same endpoint returns a deterministic fallback response.
 
 ## Invocation Flow
 
-1. A manager enters a question in the dashboard assistant panel.
+1. User enters a question in the dashboard assistant panel.
 2. `frontend/app.js` sends the question to `POST /api/assistant/query`.
-3. `src/main.py` receives the request and calls `answer_question(payload.question)`.
+3. `src/main.py` receives the request and calls py function `answer_question(payload.question)`.
 4. `src/assistant.py` runs the agent workflow.
 5. The Retrieval Agent ranks relevant EDA and segment insights.
 6. The Insight and Intervention agents package metrics, high-risk bookings, and playbooks.
