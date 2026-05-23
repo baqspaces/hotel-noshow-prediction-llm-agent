@@ -20,7 +20,7 @@ flowchart LR
 
 The notebook loads `noshow.db`, cleans the booking fields, standardizes month values, parses price values, creates customer and price-band features, and trains five real ML models plus a dummy baseline. The five real model probabilities are appended to `final_scored_df`.
 
-The Random Forest probability is selected as the operational `risk_score`, then converted into `Low`, `Medium`, and `High` risk bands using quantiles. The notebook persists the final scored dataframe into SQLite as `booking_ml_scores`.
+The Random Forest ML model has the highest F1 score and is selected to be displayed as the `risk_score` in the web dashboard. We also created categorical risk labels `Low`, `Medium`, and `High` according to the quantile distribution of the Random Forest ML model risk score. The notebook persists the final scored dataframe into SQLite as `booking_ml_scores`.
 
 The FastAPI app reads from `booking_ml_scores` for the operational queue. If the scored table is not available, the API returns a clear message asking the user to rerun the notebook ML scoring cell.
 
