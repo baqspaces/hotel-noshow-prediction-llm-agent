@@ -72,7 +72,7 @@ The LLM does not receive free-form access to the database. Instead, Python retri
 - executive summary metrics from `summary_metrics()`
 - ranked EDA insights from `top_insights()`
 - high-risk booking examples from `booking_ml_scores`
-- intervention playbooks generated from booking risk, revenue exposure, and customer type
+- intervention playbooks generated from booking risk, revenue exposure, and first-time customer status
 
 This design reduces hallucination risk because the model is asked to reason over supplied evidence instead of inventing facts.
 
@@ -83,7 +83,7 @@ The assistant prompt is stored in `LLM_PROMPT.md`. This allows non-code edits to
 - use only supplied booking metrics and retrieved evidence
 - return concise Markdown
 - start with a short heading
-- include sections such as `What the data shows`, `Recommended action`, and `Operational caveat` when useful
+- return the required sections `What the data shows`, `Recommended action`, and `Operational caveat`
 - bold important segments, metrics, and actions
 
 The `src` package reloads this Markdown prompt for every assistant request.
