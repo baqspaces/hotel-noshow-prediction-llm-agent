@@ -22,7 +22,7 @@ The assistant is invoked by the dashboard through `POST /api/assistant/query`. T
 
 | Agent | Python implementation | Input | Output | Purpose |
 |---|---|---|---|---|
-| Retrieval Agent | `_retrieve(question)` | User question | Ranked booking insights | Grounds the answer in EDA and risk data |
+| Retrieval Agent | `_retrieve(question)` | User question | Ranked booking insights | Grounds the answer with the provided EDA insights and data |
 | Insight Agent | `_build_llm_context(...)` | Retrieved insights and summary metrics | Evidence package | Provides segment patterns, no-show rates, and revenue exposure |
 | Intervention Agent | `high_risk_bookings(...)` and `_intervention_for_booking(...)` | High-risk bookings | Action playbooks | Adds operational recommendations such as reminders, staff review, or deposit checks |
 | Executive Narrative Agent | `_load_system_prompt()` and `LLM_PROMPT.md` | Evidence and formatting rules | LLM instructions | Controls tone, structure, Markdown formatting, and grounding rules |
