@@ -90,10 +90,10 @@ If you see `ModuleNotFoundError`, install the requirements from `visa/app`:
 py -m pip install -r requirements.txt
 ```
 
-If you see a database error, use an absolute SQLite URL:
+If you see a database error, use an absolute SQLite filepath:
 
 ```powershell
-$env:DATABASE_URL = "sqlite:///C:/Users/nujen/OneDrive/Desktop/yini/visa/noshow.db"
+$env:DATABASE_URL = "sqlite:///replace-with-filepath/noshow.db"
 py -m uvicorn src.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
