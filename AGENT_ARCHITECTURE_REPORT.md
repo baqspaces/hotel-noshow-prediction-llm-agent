@@ -4,11 +4,11 @@
 
 The Hotel No-Show AI agent uses a lightweight multi-agent orchestration pattern to answer hotel no-show prediction questions. The agents are logical roles inside one controlled Python workflow rather than independent services. This keeps the prototype auditable, easy to run, and aligned with enterprise review expectations.
 
-The assistant is invoked by the dashboard through `POST /api/assistant/query`. The `src` package retrieves no-show insights from `noshow.db`, builds an evidence package from the `booking_ml_scores` table, sends the package to the configured OpenAI model, and returns the answer with a provider label and an agent trace. If the LLM is unavailable, the same endpoint returns a deterministic fallback response.
+The AI agent is invoked by the dashboard through `POST /api/assistant/query`. The `src` package retrieves no-show insights from `noshow.db`, builds an evidence package from the `booking_ml_scores` table, sends the package to the configured OpenAI model, and returns the answer with a provider label and an agent trace. If the LLM is unavailable, the same endpoint returns a deterministic fallback response.
 
 ## Communication Protocol
 
-The assistant endpoint receives:
+The AI agent endpoint receives:
 
 ```json
 {
