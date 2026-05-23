@@ -142,7 +142,7 @@ Request:
 }
 ```
 
-Returns a lightweight booking no-show risk estimate from historical rows in `booking_ml_scores` that match the supplied segment fields. This endpoint is intended for demo-time operational scoring when model artifacts are not deployed as a separate online inference service.
+Returns a lightweight booking no-show risk estimate from historical rows in `booking_ml_scores` that match the supplied segment fields. 
 
 Response includes:
 
@@ -154,9 +154,9 @@ Response includes:
 - `expected_revenue_at_risk`
 - intervention recommendation
 
-## AI Assistant
+## AI Agent Assistant
 
-### Ask Assistant
+### Ask AI Agent Assistant
 
 ```http
 POST /api/assistant/query
