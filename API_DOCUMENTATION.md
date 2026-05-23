@@ -137,7 +137,7 @@ Request:
   "platform": "Website",
   "country": "China",
   "room": "King",
-  "customer_type": "First-time",
+  "customer_status": "First-time",
   "price": 1200
 }
 ```

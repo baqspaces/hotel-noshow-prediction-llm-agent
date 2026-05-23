@@ -29,5 +29,6 @@ class PredictionRequest(BaseModel):
     platform: str | None = None
     country: str | None = None
     room: str | None = None
-    customer_type: str | None = None
+    first_time_flag: int | None = None
+    customer_status: str | None = None
     price: float | None = None
