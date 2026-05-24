@@ -343,6 +343,26 @@
       "item": [
         {
           "name": "Ask Assistant - Executive Summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('assistant returns answer and provider', function () {",
+                  "  pm.expect(json.answer).to.be.a('string').and.not.empty;",
+                  "  pm.expect(json.provider).to.be.oneOf(['openai', 'deterministic_fallback']);",
+                  "});",
+                  "pm.test('assistant returns trace and retrieved evidence fields', function () {",
+                  "  pm.expect(json.agent_trace).to.be.an('array');",
+                  "  pm.expect(json.retrieved_insights).to.be.an('array');",
+                  "  pm.expect(json.matched_segment_metrics).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -376,11 +396,31 @@
                 "query"
               ]
             },
-            "description": "Asks the LLM/fallback assistant for grounded insights using retrieved dashboard evidence."
+            "description": "Asks the current OpenAI/fallback assistant for grounded insights using retrieved dashboard evidence. Response includes `answer`, `retrieved_insights`, `matched_segment_metrics`, `agent_trace`, and `provider`. The current demo implements OpenAI only; future providers require provider-specific config and client code."
           }
         },
         {
           "name": "Ask Assistant - Interventions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('assistant returns intervention answer and provider', function () {",
+                  "  pm.expect(json.answer).to.be.a('string').and.not.empty;",
+                  "  pm.expect(json.provider).to.be.oneOf(['openai', 'deterministic_fallback']);",
+                  "});",
+                  "pm.test('assistant response includes observability fields', function () {",
+                  "  pm.expect(json.agent_trace).to.be.an('array');",
+                  "  pm.expect(json.retrieved_insights).to.be.an('array');",
+                  "  pm.expect(json.matched_segment_metrics).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -414,7 +454,7 @@
                 "query"
               ]
             },
-            "description": "Tests operational intervention recommendations and assistant grounding."
+            "description": "Tests operational intervention recommendations, assistant grounding, provider labeling, and traceability fields."
           }
         }
       ]
