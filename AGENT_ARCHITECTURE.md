@@ -4,7 +4,7 @@
 
 The Hotel No-Show AI agent uses a lightweight multi-agent orchestration pattern to answer hotel no-show prediction questions. The agents are logical roles inside one controlled Python workflow rather than independent services. This keeps the prototype auditable, easy to run, and aligned with enterprise review expectations.
 
-The AI agent is invoked by the dashboard through `POST /api/assistant/query`. The `src` package retrieves no-show insights from `noshow.db`, builds an evidence package from the `booking_ml_scores` table, sends the package to the configured OpenAI model, and returns the answer with a provider label and an agent trace. If the LLM is unavailable, the same endpoint returns a deterministic fallback response.
+The AI agent is invoked by the dashboard through `POST /api/assistant/query`. The `src` package retrieves no-show insights from `noshow.db`, builds an evidence package from the `booking_ml_scores` table, sends the package to the configured LLM provider, and returns the answer with a provider label and an agent trace. The current implementation uses OpenAI, while the provider boundary is intended to support future LLM providers such as Claude or Gemini. If the LLM is unavailable, the same endpoint returns a deterministic fallback response.
 
 ## Communication Protocol
 
@@ -22,12 +22,13 @@ The assistant returns:
 {
   "answer": "...",
   "retrieved_insights": [],
+  "matched_segment_metrics": [],
   "agent_trace": [],
   "provider": "openai"
 }
 ```
 
-`provider` is `openai` when the live LLM call succeeds and `deterministic_fallback` when the fallback path is used. The dashboard displays the provider badge, rendered Markdown answer, and collapsible agent trace.
+`provider` is `openai` when the current live LLM call succeeds and `deterministic_fallback` when the fallback path is used. Future provider values can be added behind the same response contract. The dashboard displays the provider badge, rendered Markdown answer, and collapsible agent trace.
 
 ## Invocation Flow
 
@@ -35,10 +36,10 @@ The assistant returns:
 2. `frontend/app.js` sends the question to `POST /api/assistant/query`.
 3. `src/main.py` receives the request and calls py function `answer_question(payload.question)`.
 4. `src/assistant.py` runs the agent workflow.
-5. The Retrieval Agent ranks relevant EDA and segment insights.
+5. The Retrieval Agent ranks relevant EDA and segment insights, including exact segment matches from the user question.
 6. The Insight and Intervention agents package metrics, high-risk bookings, and playbooks.
 7. The Executive Narrative Agent applies instructions from `LLM_PROMPT.md`.
-8. The Coordinator Agent calls OpenAI or returns the deterministic fallback.
+8. The Coordinator Agent calls the configured LLM provider or returns the deterministic fallback.
 9. The dashboard displays the provider, rendered answer, and collapsible agent trace.
 
 ## Agent Roles
@@ -57,12 +58,12 @@ The assistant returns:
 Dashboard question
   -> FastAPI /api/assistant/query
   -> answer_question()
-  -> Retrieval Agent: _retrieve()
+  -> Retrieval Agent: _retrieve() + matched_segment_insights()
   -> Insight Agent: _build_llm_context()
   -> Intervention Agent: high_risk_bookings() + _intervention_for_booking()
   -> Executive Narrative Agent: LLM_PROMPT.md
-  -> Coordinator Agent: _call_openai_assistant()
-  -> Response: answer + provider + retrieved_insights + agent_trace
+  -> Coordinator Agent: configured LLM provider call
+  -> Response: answer + provider + retrieved_insights + matched_segment_metrics + agent_trace
 ```
 
 ## Evidence Grounding
@@ -71,6 +72,7 @@ The LLM does not receive free-form access to the database. Instead, Python retri
 
 - executive summary metrics from `summary_metrics()`
 - ranked EDA insights from `top_insights()`
+- exact segment matches from `matched_segment_insights(question)`
 - high-risk booking examples from `booking_ml_scores`
 - intervention playbooks generated from booking risk, revenue exposure, and first-time customer status
 
@@ -92,16 +94,16 @@ The `src` package reloads this Markdown prompt for every assistant request.
 
 The assistant returns a `provider` field:
 
-- `openai`: the live LLM call succeeded
+- `openai`: the current live OpenAI LLM call succeeded
 - `deterministic_fallback`: the LLM call was unavailable and fallback logic answered instead
 
-The `agent_trace` field records each orchestration step so reviewers can see which roles ran and whether the final answer came from LLM models (.e.g OpenAI) or fallback logic.
+The `agent_trace` field records each orchestration step so reviewers can see which roles ran and whether the final answer came from a live LLM provider, such as OpenAI today, or fallback logic.
 
 ## Key Files
 
 | File | Role |
 |---|---|
-| `src/assistant.py` | Main agent orchestration and OpenAI/fallback call |
+| `src/assistant.py` | Main agent orchestration, current OpenAI provider call, fallback logic, and future LLM provider extension point |
 | `src/main.py` | FastAPI endpoint that invokes the assistant |
 | `src/analytics.py` | Summary metrics, segment insights, operational risk queue, and prediction scores |
 | `frontend/app.js` | Sends assistant questions and renders provider, answer, and trace |
