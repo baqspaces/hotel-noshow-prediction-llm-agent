@@ -98,6 +98,10 @@ main {
   padding: 24px 36px 40px;
 }
 
+.section-title {
+  margin-bottom: 12px;
+}
+
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(160px, 1fr));

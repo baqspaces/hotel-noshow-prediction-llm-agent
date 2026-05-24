@@ -1,3 +1,5 @@
+import re
+
 from fastapi import HTTPException
 
 from .cache import cache
@@ -28,6 +30,10 @@ ML_SCORE_COLUMNS = [
 PRICE_NUMERIC_SQL = (
     "CAST(REPLACE(REPLACE(REPLACE(REPLACE(CAST(price AS TEXT), 'SGD$', ''), '$', ''), ',', ''), ' ', '') AS REAL)"
 )
+
+
+def _normalize_search_text(value: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", str(value).lower())).strip()
 
 
 def active_analytics_table() -> str:
@@ -135,6 +141,90 @@ def segment_summary(dimension: str, min_bookings: int = 20, limit: int = 20) -> 
         {"min_bookings": min_bookings, "limit": limit},
     )
     return cache.set(cache_key, rows)
+
+
+def segment_detail(dimension: str, segment: str) -> dict | None:
+    try:
+        table_name = active_analytics_table()
+        if dimension != "customer_status":
+            dimension = assert_known_column(dimension, table_name)
+        elif "first_time_flag" not in table_columns(table_name):
+            raise ValueError("Unknown column: customer_status")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    cache_key = f"segment_detail:{table_name}:{dimension}:{_normalize_search_text(segment)}"
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
+    columns = set(table_columns(table_name))
+    segment_expr = normalized_dimension_expr(dimension)
+    price_cols = f"AVG({PRICE_NUMERIC_SQL}) AS avg_price, COALESCE(SUM(CASE WHEN no_show = 1 THEN {PRICE_NUMERIC_SQL} ELSE 0 END), 0) AS observed_revenue_at_risk"
+    if "price" not in columns:
+        price_cols = "NULL AS avg_price, NULL AS observed_revenue_at_risk"
+
+    row = fetch_one_dict(
+        f"""
+        SELECT
+            {segment_expr} AS segment,
+            COUNT(*) AS bookings,
+            SUM(no_show) AS no_shows,
+            AVG(no_show) AS no_show_rate,
+            {price_cols}
+        FROM {table_name}
+        GROUP BY {segment_expr}
+        HAVING LOWER({segment_expr}) = LOWER(:segment)
+        """,
+        {"segment": segment},
+    )
+    if not row:
+        return None
+    row["dimension"] = dimension
+    summary = summary_metrics()
+    overall_rate = summary.get("no_show_rate") or 0
+    row["overall_no_show_rate"] = overall_rate
+    row["no_show_rate_delta_vs_overall"] = (row.get("no_show_rate") or 0) - overall_rate
+    return cache.set(cache_key, row)
+
+
+def matched_segment_insights(question: str, limit: int = 5) -> list[dict]:
+    table_name = active_analytics_table()
+    cache_key = f"matched_segments:{table_name}:{_normalize_search_text(question)}:{limit}"
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
+    question_text = f" {_normalize_search_text(question)} "
+    matches = []
+    seen = set()
+    for dimension in available_dimensions():
+        segment_expr = normalized_dimension_expr(dimension)
+        rows = fetch_all_dicts(
+            f"""
+            SELECT {segment_expr} AS segment, COUNT(*) AS bookings
+            FROM {table_name}
+            GROUP BY {segment_expr}
+            ORDER BY bookings DESC
+            """
+        )
+        for row in rows:
+            segment = row.get("segment")
+            normalized_segment = _normalize_search_text(segment)
+            if len(normalized_segment) < 3 or normalized_segment == "missing":
+                continue
+            if f" {normalized_segment} " not in question_text:
+                continue
+            key = (dimension, normalized_segment)
+            if key in seen:
+                continue
+            detail = segment_detail(dimension, segment)
+            if detail:
+                matches.append(detail)
+                seen.add(key)
+            if len(matches) >= limit:
+                return cache.set(cache_key, matches)
+    return cache.set(cache_key, matches)
 
 
 def high_risk_bookings(limit: int = 50, risk_band: str | None = None) -> list[dict]:

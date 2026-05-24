@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 
-from .analytics import high_risk_bookings, summary_metrics, top_insights
+from .analytics import high_risk_bookings, matched_segment_insights, summary_metrics, top_insights
 from .config import get_settings
 
 
@@ -62,9 +62,27 @@ def _intervention_for_booking(row: dict) -> str:
     return "standard reminder flow"
 
 
-def _fallback_answer(question: str, retrieved: list[dict], trace: list[dict]) -> dict:
+def _format_matched_segment_answer(matched_segments: list[dict]) -> str:
+    lines = []
+    for row in matched_segments:
+        delta = row.get("no_show_rate_delta_vs_overall") or 0
+        direction = "above" if delta >= 0 else "below"
+        lines.append(
+            f"{row.get('dimension')}: {row.get('segment')} has {row.get('bookings', 0):,} bookings, "
+            f"{row.get('no_shows', 0):,} no-shows, a {row.get('no_show_rate', 0):.1%} no-show rate, "
+            f"and {row.get('observed_revenue_at_risk') or 0:,.0f} observed revenue at risk. "
+            f"This is {abs(delta):.1%} {direction} the overall {row.get('overall_no_show_rate', 0):.1%} no-show rate."
+        )
+    return "Matched segment metrics:\n" + "\n".join(lines)
+
+
+def _fallback_answer(question: str, retrieved: list[dict], trace: list[dict], matched_segments: list[dict] | None = None) -> dict:
     q = question.lower()
-    if "what if" in q or "reduce" in q or "reduction" in q:
+    matched_segments = matched_segments or []
+    if matched_segments:
+        trace.append({"agent": "Targeted Segment Agent", "action": "answered with exact segment metrics matched from the question"})
+        answer = _format_matched_segment_answer(matched_segments)
+    elif "what if" in q or "reduce" in q or "reduction" in q:
         trace.append({"agent": "Queue Prioritization Agent", "action": "redirected scenario question to risk queue actions"})
         answer = (
             "The dashboard now focuses on actioning bookings through the operational queue. "
@@ -95,13 +113,17 @@ def _fallback_answer(question: str, retrieved: list[dict], trace: list[dict]) ->
     return {
         "answer": answer,
         "retrieved_insights": retrieved,
+        "matched_segment_metrics": matched_segments,
         "agent_trace": trace,
     }
 
 
-def _build_llm_context(question: str, retrieved: list[dict], prompt: str) -> str:
+def _build_llm_context(question: str, retrieved: list[dict], matched_segments: list[dict], prompt: str) -> str:
     metrics = summary_metrics()
-    bookings = high_risk_bookings(limit=5)
+    try:
+        bookings = high_risk_bookings(limit=5)
+    except Exception:
+        bookings = []
     booking_examples = [
         {
             "booking_id": row.get("booking_id"),
@@ -123,6 +145,7 @@ def _build_llm_context(question: str, retrieved: list[dict], prompt: str) -> str
         f"Response format instructions from LLM_PROMPT.md:\n{_response_format_instructions(prompt)}\n\n"
         f"Executive summary metrics:\n{metrics}\n\n"
         f"Retrieved EDA insights:\n{retrieved}\n\n"
+        f"Matched segment metrics:\n{matched_segments}\n\n"
         f"High-risk booking examples:\n{booking_examples}"
     )
 
@@ -135,7 +158,7 @@ def _matches_response_format(answer: str, prompt: str) -> bool:
     return all(heading in stripped for heading in required_headings)
 
 
-def _call_openai_assistant(question: str, retrieved: list[dict]) -> str:
+def _call_openai_assistant(question: str, retrieved: list[dict], matched_segments: list[dict]) -> str:
     settings = get_settings()
     if not settings.openai_api_key:
         raise RuntimeError("OPENAI_API_KEY is not configured")
@@ -152,7 +175,7 @@ def _call_openai_assistant(question: str, retrieved: list[dict]) -> str:
         timeout=settings.openai_timeout_seconds,
     )
     prompt = _load_system_prompt()
-    context = _build_llm_context(question, retrieved, prompt)
+    context = _build_llm_context(question, retrieved, matched_segments, prompt)
     response = client.responses.create(
         model=settings.openai_model,
         instructions=prompt,
@@ -180,31 +203,34 @@ def _call_openai_assistant(question: str, retrieved: list[dict]) -> str:
 
 def answer_question(question: str) -> dict:
     trace = [
-        {"agent": "Retrieval Agent", "action": "searched EDA and segment insights"},
+        {"agent": "Retrieval Agent", "action": "searched EDA, top segment insights, and exact segment matches"},
     ]
     retrieved = _retrieve(question)
+    matched_segments = matched_segment_insights(question)
 
     try:
         trace.extend([
             {"agent": "Insight Agent", "action": "sent retrieved booking evidence to the configured LLM"},
+            {"agent": "Targeted Segment Agent", "action": "included exact segment metrics matched from the question"},
             {"agent": "Intervention Agent", "action": "included high-risk bookings and intervention playbooks as LLM context"},
             {"agent": "Executive Narrative Agent", "action": "asked the LLM to translate analytics into management-ready guidance"},
             {"agent": "Coordinator Agent", "action": "used the LLM response as the final assistant answer"},
         ])
-        answer = _call_openai_assistant(question, retrieved)
+        answer = _call_openai_assistant(question, retrieved, matched_segments)
         provider = "openai"
     except Exception as exc:
         trace.append({
             "agent": "Coordinator Agent",
             "action": f"fell back to deterministic response because LLM call was unavailable: {exc}",
         })
-        fallback = _fallback_answer(question, retrieved, trace)
+        fallback = _fallback_answer(question, retrieved, trace, matched_segments)
         fallback["provider"] = "deterministic_fallback"
         return fallback
 
     return {
         "answer": answer,
         "retrieved_insights": retrieved,
+        "matched_segment_metrics": matched_segments,
         "agent_trace": trace,
         "provider": provider,
     }
