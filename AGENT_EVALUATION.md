@@ -8,7 +8,7 @@ This report evaluates whether the AI agent produces grounded, useful, and tracea
 
 Each test prompt can be run from the dashboard assistant panel or through `POST /api/assistant/query`. The response is reviewed for:
 
-- `provider`: confirms whether the answer came from `openai` or fallback logic
+- `provider`: confirms whether the answer came from a LLM provider (e.g. openai, claude, gemini, etc) or fallback logic. The current demo uses `openai`, but it can be extensible to whichever LLM provider / model the users chooses.
 - `agent_trace`: confirms the orchestration path
 - grounding: answer uses retrieved metrics and booking examples
 - actionability: recommendations are operationally useful
@@ -18,7 +18,7 @@ Each test prompt can be run from the dashboard assistant panel or through `POST 
 
 | Test Prompt | Expected Behavior | Pass Criteria | Provider Check | Result |
 |---|---|---|---|---|
-| Give me an executive summary of no-show risk. | Summarizes total bookings, no-show rate, revenue exposure, and priority segments. | Uses supplied summary metrics and avoids unsupported root-cause claims. | `provider` should be `openai` when API key is configured, otherwise `deterministic_fallback`. | Pass |
+| Give me an executive summary of no-show risk. | Summarizes total bookings, no-show rate, revenue exposure, and priority segments. | Uses supplied summary metrics and avoids unsupported root-cause claims. | `provider` should be `openai` with the current provider when API key is configured, otherwise `deterministic_fallback`. | Pass |
 | What actions should we take for high-risk bookings? | Recommends targeted interventions for risky bookings. | Ties actions to risk probability, expected revenue exposure, first-time customer status, or segment. | Agent trace should include Intervention Agent context. | Pass |
 | Which segments are driving no-show risk? | Explains risk by available dimensions such as branch, country, room, first-time customer status, platform, or month. | Uses retrieved segment insights from the database-backed analytics layer. | Retrieved insights should be present in the API response. | Pass |
 | What if we reduce no-shows without hurting customer experience? | Suggests controlled tests and operational guardrails. | Recommends targeted reminders, confirmations, deposits, or overbooking review without claiming causal proof. | Agent trace should include Coordinator Agent and LLM or fallback path. | Pass |
@@ -29,7 +29,7 @@ Each test prompt can be run from the dashboard assistant panel or through `POST 
 
 | Reliability Area | Check | Current Implementation |
 |---|---|---|
-| Grounding | Assistant answers are based on retrieved metrics, segment insights, and high-risk booking examples. | Implemented through `summary_metrics()`, `top_insights()`, and `high_risk_bookings()`. |
+| Grounding | Assistant answers are based on retrieved metrics, exact segment matches, segment insights, and high-risk booking examples. | Implemented through `summary_metrics()`, `matched_segment_insights()`, `top_insights()`, and `high_risk_bookings()`. |
 | Traceability | Response exposes the orchestration path. | Implemented through `agent_trace` in the API and collapsible dashboard trace. |
 | Provider transparency | Reviewer can tell whether the LLM or fallback produced the answer. | Implemented through `provider` in the API and dashboard badge. |
 | Fallback safety | Assistant continues working without LLM credentials. | Implemented through deterministic fallback in `answer_question()`. |
@@ -39,7 +39,7 @@ Each test prompt can be run from the dashboard assistant panel or through `POST 
 ## Known Limitations
 
 - The agents are logical roles in one orchestrated Python workflow, not independent autonomous services.
-- The current implementation uses one LLM call per assistant query rather than separate LLM calls per agent.
+- The current implementation uses one primary LLM call per assistant query rather than separate LLM calls per agent. A second repair call can run when the first answer does not follow the required response format.
 - There is no long-term agent memory store.
 - Recommendations are policy heuristics and should be validated through controlled operational experiments.
 - LLM output quality depends on the configured model, prompt, and retrieved evidence.

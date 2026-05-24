@@ -176,10 +176,11 @@ Response includes:
 
 - `answer`
 - `retrieved_insights`
+- `matched_segment_metrics`
 - `agent_trace`
 - `provider`
 
-`provider` is `openai` when the configured LLM call succeeds and `deterministic_fallback` when the fallback path is used. The dashboard displays the provider badge, rendered answer, and collapsible agent trace.
+`matched_segment_metrics` contains exact segment metrics when the user question mentions a known branch, platform, country, room, customer status, or month segment. `provider` is `openai` when the current configured OpenAI LLM call succeeds and `deterministic_fallback` when the fallback path is used. The response contract is provider-labeled so future LLM providers can be added without changing the dashboard request shape.
 
 ## WebSocket
 

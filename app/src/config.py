@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
     openai_org_id: str | None = Field(default=None, alias="OPENAI_ORG_ID")
     openai_project_id: str | None = Field(default=None, alias="OPENAI_PROJECT_ID")
-    openai_model: str = Field(default="gpt-5", alias="OPENAI_MODEL")
+    openai_model: str = Field(default="gpt-5-mini", alias="OPENAI_MODEL")
     openai_timeout_seconds: float = Field(default=20.0, alias="OPENAI_TIMEOUT_SECONDS")
 
     model_config = SettingsConfigDict(

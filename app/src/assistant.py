@@ -217,7 +217,7 @@ def answer_question(question: str) -> dict:
             {"agent": "Coordinator Agent", "action": "used the LLM response as the final assistant answer"},
         ])
         answer = _call_openai_assistant(question, retrieved, matched_segments)
-        provider = "openai"
+        provider = "openai" ## to allow for future expansion to other LLM providers or local models
     except Exception as exc:
         trace.append({
             "agent": "Coordinator Agent",

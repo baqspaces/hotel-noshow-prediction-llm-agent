@@ -56,6 +56,8 @@ password: password123
 
 ## LLM assistant config:
 
+The current runtime provider is OpenAI, with `OPENAI_MODEL` defaulting to `gpt-5-mini`. The assistant design keeps provider handling isolated so other LLM providers, such as Claude or Gemini, can be added later without changing the dashboard contract. Users would only need to append any additional LLM API credentials as necessary.
+
 ```text
 OPENAI_API_KEY=sk-proj-your-key-here
 OPENAI_ORG_ID=
@@ -128,7 +130,7 @@ If PowerShell blocks `npm`, use `npm.cmd`. This app does not require npm to run.
 - `analytics.py`: analytics and risk logic; selects the active booking table, computes summary metrics, creates segment summaries, fetches high-risk bookings, estimates booking risk, and generates top insights
 - `assistant.py`: AI assistant logic; loads `LLM_PROMPT.md`, retrieves relevant insights, builds LLM context, calls LLM model (OpenAI, Claude, etc) when configured, falls back to deterministic answers, and creates intervention recommendations
 - `cache.py`: simple in-memory TTL cache used to avoid repeatedly recalculating common analytics results
-- `config.py`: application settings layer; reads defaults and `.env` values for database, login, JWT, cache, and OpenAI configuration
+- `config.py`: application settings layer; reads defaults and `.env` values for database, login, JWT, cache, and current OpenAI provider configuration
 - `database.py`: database access layer; creates the SQLAlchemy engine, detects the booking table, manages sessions, validates columns, and provides query helpers
 - `schemas.py`: Pydantic request and response models used to validate API inputs such as login, assistant queries, and prediction requests
 - `security.py`: authentication helpers; creates and verifies bearer tokens and protects API routes with `require_user`
