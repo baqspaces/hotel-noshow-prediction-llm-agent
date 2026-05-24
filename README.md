@@ -121,7 +121,7 @@ If PowerShell blocks `npm`, use `npm.cmd`. This app does not require npm to run.
 - `AGENT_ARCHITECTURE.md`: agent roles, coordination logic, intervention policy, and invocation flow
 - `AGENT_EVALUATION.md`: agent performance and reliability evaluation report
 - `LLM_PROMPT.md`: editable assistant instructions, grounding rules, and response format
-- `PRODUCTIONISATION_CHECKLIST.md`: checklist of work needed to be done to deploy this project (i.e. EDA &rarr Model &rarr Dashboard &rarr LLM Agent) to production.
+- `PRODUCTIONISATION_CHECKLIST.md`: checklist of work needed to be done to deploy this project (i.e. EDA -> Model -> Dashboard -> LLM Agent) to production.
 
 ## App Directory
 
