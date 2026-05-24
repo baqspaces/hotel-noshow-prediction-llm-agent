@@ -66,7 +66,7 @@ OPENAI_TIMEOUT_SECONDS=20
 
 If `OPENAI_API_KEY` is not configured, the assistant endpoint still works by falling back to the deterministic assessment-safe response logic.
 
-To adjust the LLM's answer style, edit `LLM_PROMPT.md`. The `src` package reloads this Markdown prompt for every assistant request, so formatting and tone changes do not require Python code changes.
+To adjust the LLM assistant's answer style, edit `LLM_PROMPT.md`. The `src` package reloads this Markdown prompt for every assistant request, so formatting and tone changes do not require Python code changes.
 
 ## API docs:
 
