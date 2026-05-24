@@ -70,7 +70,7 @@ function renderMarkdown(markdown) {
 }
 
 function dimensionLabel(dimension) {
-  return dimension === "customer_status" ? "Customer status" : dimension;
+  return dimension === "customer_status" ? "customer_status" : dimension;
 }
 
 function customerStatus(row) {
