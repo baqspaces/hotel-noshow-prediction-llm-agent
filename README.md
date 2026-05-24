@@ -147,13 +147,9 @@ Rerun the notebook ML scoring cell to refresh the `booking_ml_scores` table befo
 | App startup | `py -m uvicorn src.main:app --reload --host 127.0.0.1 --port 8000` | App starts without import or database connection errors | Pass |
 | Health check | `GET /health` | Returns `status: ok`, environment, raw booking table, and active analytics table | Pass |
 | Authentication | Login with `manager` / `password123` | Returns a bearer token for protected endpoints | Pass |
-| Dashboard load | Open `/` after login | KPI cards, segment controls, and segment chart load | Pass |
+| Dashboard load | Opens dashboard data only after login | KPI cards, segment controls, and segment chart load after login | Pass |
 | Risk queue | Click `Load` in the operational queue | High-risk bookings, ML risk scores, expected exposure, and interventions appear | Pass |
 | Assistant | Ask an executive summary question | Dashboard renders provider badge, Markdown answer, and collapsible agent trace | Pass |
 | LLM fallback | Run without `OPENAI_API_KEY` | Assistant still responds with `Provider: fallback` | Pass |
 | API docs | Open `/docs` | FastAPI Swagger UI loads endpoint documentation and request schemas | Pass |
 | OpenAPI schema | Open `/openapi.json` | Machine-readable API schema is available for review or Postman import | Pass |
-
-## Submission Safety
-
-Do not submit `visa/app/.env`. It is ignored by `.gitignore`; submit `.env.example` instead and provide real secrets only through local environment variables or the deployment environment.
