@@ -11,9 +11,11 @@ services:
       JWT_SECRET: change-this-before-production
       DEMO_USERNAME: manager
       DEMO_PASSWORD: password123
+      # LLM configuration - these can be overridden with environment variables when running the container
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
       OPENAI_TIMEOUT_SECONDS: ${OPENAI_TIMEOUT_SECONDS:-20}
+      # you can add on more LLM credentials or configuration options here as needed
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
       interval: 30s
