@@ -126,7 +126,7 @@ If PowerShell blocks `npm`, use `npm.cmd`. This app does not require npm to run.
 - `app.py`: lightweight FastAPI wrapper used to launch the app with `uvicorn`; imports the full application from `src.main`
 - `main.py`: main FastAPI application; configures logging, CORS, static frontend serving, authentication routes, analytics endpoints, prediction endpoints, assistant endpoint, and the summary websocket
 - `analytics.py`: analytics and risk logic; selects the active booking table, computes summary metrics, creates segment summaries, fetches high-risk bookings, estimates booking risk, and generates top insights
-- `assistant.py`: AI assistant logic; loads `LLM_PROMPT.md`, retrieves relevant insights, builds LLM context, calls OpenAI when configured, falls back to deterministic answers, and creates intervention recommendations
+- `assistant.py`: AI assistant logic; loads `LLM_PROMPT.md`, retrieves relevant insights, builds LLM context, calls LLM model (OpenAI, Claude, etc) when configured, falls back to deterministic answers, and creates intervention recommendations
 - `cache.py`: simple in-memory TTL cache used to avoid repeatedly recalculating common analytics results
 - `config.py`: application settings layer; reads defaults and `.env` values for database, login, JWT, cache, and OpenAI configuration
 - `database.py`: database access layer; creates the SQLAlchemy engine, detects the booking table, manages sessions, validates columns, and provides query helpers
