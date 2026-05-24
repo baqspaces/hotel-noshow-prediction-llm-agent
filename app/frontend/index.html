@@ -20,6 +20,7 @@
     </header>
 
     <main>
+      <h2 class="section-title">Topline KPI Metrics</h2>
       <section class="metrics-grid" id="metrics"></section>
 
       <section class="workspace">
@@ -27,10 +28,6 @@
           <label>
             Segment
             <select id="dimensionSelect"></select>
-          </label>
-          <label>
-            Minimum bookings
-            <input id="minBookings" type="number" min="1" value="50" />
           </label>
           <button id="refreshSegments">Refresh</button>
           <div class="status" id="status">Login to load dashboard.</div>
@@ -50,8 +47,8 @@
       <section class="panel queue-panel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Operational queue</p>
-              <h2>Risk-ranked bookings</h2>
+              <p class="eyebrow">Operational Queue</p>
+              <h2>Top No-show risk ranked bookings</h2>
             </div>
             <div class="queue-controls">
               <label>

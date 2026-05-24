@@ -169,8 +169,7 @@ function connectSummaryStream() {
 
 async function loadSegments() {
   const dimension = $("dimensionSelect").value || "branch";
-  const minBookings = Number($("minBookings").value || 20);
-  const data = await api(`/api/segments?dimension=${encodeURIComponent(dimension)}&min_bookings=${minBookings}&limit=12`);
+  const data = await api(`/api/segments?dimension=${encodeURIComponent(dimension)}&limit=12`);
   $("segmentTitle").textContent = `${dimensionLabel(dimension)} no-show rates`;
   const maxRate = Math.max(...data.rows.map((row) => Number(row.no_show_rate || 0)), 0.01);
   $("segmentBars").innerHTML = data.rows
