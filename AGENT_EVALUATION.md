@@ -8,7 +8,7 @@ This report evaluates whether the AI agent produces grounded, useful, and tracea
 
 Each test prompt can be run from the dashboard assistant panel or through `POST /api/assistant/query`. The response is reviewed for:
 
-- `provider`: confirms whether the answer came from a LLM provider (e.g. openai, claude, gemini, etc) or fallback logic. The current demo uses `openai`, but it can be extensible to whichever LLM provider / model the users chooses.
+- `provider`: confirms whether the answer came from a LLM provider (e.g. openai, claude, gemini, etc) or fallback logic. The current demo uses `openai`, but it can be extensible to whichever LLM provider / model the users choose.
 - `agent_trace`: confirms the orchestration path
 - grounding: answer uses retrieved metrics and booking examples
 - actionability: recommendations are operationally useful
