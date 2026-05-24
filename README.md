@@ -56,13 +56,13 @@ password: password123
 
 ## LLM assistant config:
 
-The current runtime provider is OpenAI, with `OPENAI_MODEL` defaulting to `gpt-5-mini`. The assistant design keeps provider handling isolated so other LLM providers, such as Claude or Gemini, can be added later without changing the dashboard contract. Users would only need to append any additional LLM API credentials as necessary.
+The current runtime provider is OpenAI, with `OPENAI_MODEL` defaulting to `gpt-5.4-mini`. The assistant design keeps provider handling isolated so other LLM providers, such as Claude or Gemini, can be added later without changing the dashboard contract. Users would only need to append any additional LLM API credentials as necessary.
 
 ```text
 OPENAI_API_KEY=sk-proj-your-key-here
 OPENAI_ORG_ID=
 OPENAI_PROJECT_ID=
-OPENAI_MODEL=gpt-5-mini
+OPENAI_MODEL=gpt-5.4-mini
 OPENAI_TIMEOUT_SECONDS=20
 ```
 
