@@ -180,7 +180,7 @@ Response includes:
 - `agent_trace`
 - `provider`
 
-`matched_segment_metrics` contains exact segment metrics when the user question mentions a known branch, platform, country, room, customer status, or month segment. `provider` is `openai` when the current configured OpenAI LLM call succeeds and `deterministic_fallback` when the fallback path is used. The response contract is provider-labeled so future LLM providers can be added without changing the dashboard request shape.
+`matched_segment_metrics` contains exact segment metrics when the user question mentions a known branch, platform, country, room, customer status, or month segment. `provider` is `openai` when the current configured OpenAI LLM call succeeds and `deterministic_fallback` when the fallback path is used. The current demo implements OpenAI only. Future LLM providers can reuse the same dashboard request shape after provider-specific config, client calls, dependencies, and response normalisation are added.
 
 ## WebSocket
 

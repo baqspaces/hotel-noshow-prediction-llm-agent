@@ -8,7 +8,7 @@ This report evaluates whether the AI agent produces grounded, useful, and tracea
 
 Each test prompt can be run from the dashboard assistant panel or through `POST /api/assistant/query`. The response is reviewed for:
 
-- `provider`: confirms whether the answer came from a LLM provider (e.g. openai, claude, gemini, etc) or fallback logic. The current demo uses `openai`, but it can be extensible to whichever LLM provider / model the users choose.
+- `provider`: confirms whether the answer came from an LLM provider or fallback logic. The current demo uses `openai`; future providers such as Claude or Gemini would require provider-specific config, client calls, SDK dependencies, and response normalisation before they can be selected.
 - `agent_trace`: confirms the orchestration path
 - grounding: answer uses retrieved metrics and booking examples
 - actionability: recommendations are operationally useful
@@ -43,6 +43,7 @@ Each test prompt can be run from the dashboard assistant panel or through `POST 
 - There is no long-term agent memory store.
 - Recommendations are policy heuristics and should be validated through controlled operational experiments.
 - LLM output quality depends on the configured model, prompt, and retrieved evidence.
+- The current implementation supports OpenAI model changes through `OPENAI_MODEL`, but adding non-OpenAI providers requires implementing a provider layer first.
 
 ## Future Production Plan
 

@@ -56,7 +56,15 @@ password: password123
 
 ## LLM assistant config:
 
-The current runtime provider is OpenAI, with `OPENAI_MODEL` defaulting to `gpt-5.4-mini`. The assistant design keeps provider handling isolated so other LLM providers, such as Claude or Gemini, can be added later without changing the dashboard contract. Users would only need to append any additional LLM API credentials as necessary.
+The current demo implementation uses OpenAI only, with `OPENAI_MODEL` defaulting to `gpt-5.4-mini`. Users can switch between OpenAI model IDs by changing `OPENAI_MODEL`.
+
+To add another LLM provider such as Claude or Gemini, extend the provider layer rather than changing the dashboard contract. At a high level, this would require:
+
+- adding provider selection config such as `LLM_PROVIDER`
+- adding provider-specific credentials and model settings
+- implementing provider-specific client calls in `assistant.py`
+- normalising all provider responses into the same assistant API shape
+- adding any required SDK dependencies and updating Docker / `.env.example` docs
 
 ```text
 OPENAI_API_KEY=sk-proj-your-key-here
@@ -128,7 +136,7 @@ If PowerShell blocks `npm`, use `npm.cmd`. This app does not require npm to run.
 - `app.py`: FastAPI entrypoint that imports `src.main:app`
 - `main.py`: main FastAPI application; configures logging, CORS, static frontend serving, authentication routes, analytics endpoints, prediction endpoints, assistant endpoint, and the summary websocket
 - `analytics.py`: analytics and risk logic; selects the active booking table, computes summary metrics, creates segment summaries, fetches high-risk bookings, estimates booking risk, and generates top insights
-- `assistant.py`: AI assistant logic; loads `LLM_PROMPT.md`, retrieves relevant insights, builds LLM context, calls LLM model (OpenAI, Claude, etc) when configured, falls back to deterministic answers, and creates intervention recommendations
+- `assistant.py`: AI assistant logic; loads `LLM_PROMPT.md`, retrieves relevant insights, builds LLM context, calls the current OpenAI provider implementation, falls back to deterministic answers, and creates intervention recommendations. This is the main extension point for future providers such as Claude or Gemini.
 - `cache.py`: simple in-memory TTL cache used to avoid repeatedly recalculating common analytics results
 - `config.py`: application settings layer; reads defaults and `.env` values for database, login, JWT, cache, and current OpenAI provider configuration
 - `database.py`: database access layer; creates the SQLAlchemy engine, detects the booking table, manages sessions, validates columns, and provides query helpers

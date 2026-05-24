@@ -20,7 +20,7 @@ This checklist summarises the key next steps to move the hotel no-show predictio
 
 ## LLM Assistant
 
-- Keep the provider boundary explicit so OpenAI, Claude, Gemini, or local models can be added without changing the dashboard contract.
+- Keep the provider boundary explicit. The current demo implements OpenAI only; Claude, Gemini, or local models would require provider-specific config, client calls, dependencies, and response normalisation.
 - Track provider name, model name, prompt version, latency, fallback rate, and error rate.
 - Add regression tests for common assistant questions and required answer structure.
 - Add guardrails for unsupported claims, hallucinated metrics, and missing operational caveats.
