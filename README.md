@@ -121,11 +121,11 @@ If PowerShell blocks `npm`, use `npm.cmd`. This app does not require npm to run.
 - `AGENT_ARCHITECTURE.md`: agent roles, coordination logic, intervention policy, and invocation flow
 - `AGENT_EVALUATION.md`: agent performance and reliability evaluation report
 - `LLM_PROMPT.md`: editable assistant instructions, grounding rules, and response format
-- `app.py`: FastAPI entrypoint that imports `src.main:app`
+- `PRODUCTIONISATION_CHECKLIST.md`: checklist of work needed to be done to deploy this project (i.e. EDA --> Model --> Dashboard --> LLM Agent) to production.
 
 ## App Directory
 
-- `app.py`: lightweight FastAPI wrapper used to launch the app with `uvicorn`; imports the full application from `src.main`
+- `app.py`: FastAPI entrypoint that imports `src.main:app`
 - `main.py`: main FastAPI application; configures logging, CORS, static frontend serving, authentication routes, analytics endpoints, prediction endpoints, assistant endpoint, and the summary websocket
 - `analytics.py`: analytics and risk logic; selects the active booking table, computes summary metrics, creates segment summaries, fetches high-risk bookings, estimates booking risk, and generates top insights
 - `assistant.py`: AI assistant logic; loads `LLM_PROMPT.md`, retrieves relevant insights, builds LLM context, calls LLM model (OpenAI, Claude, etc) when configured, falls back to deterministic answers, and creates intervention recommendations
