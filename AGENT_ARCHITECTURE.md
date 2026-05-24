@@ -4,7 +4,9 @@
 
 The Hotel No-Show AI agent uses a lightweight multi-agent orchestration pattern to answer hotel no-show prediction questions. The agents are logical roles inside one controlled Python workflow rather than independent services. This keeps the prototype auditable, easy to run, and aligned with enterprise review expectations.
 
-The AI agent is invoked by the dashboard through `POST /api/assistant/query`. The `src` package retrieves no-show insights from `noshow.db`, builds an evidence package from the `booking_ml_scores` table, sends the package to the configured LLM provider, and returns the answer with a provider label and an agent trace. The current implementation uses OpenAI, while the provider boundary is intended to support future LLM providers such as Claude or Gemini. If the LLM is unavailable, the same endpoint returns a deterministic fallback response.
+The AI agent is invoked by the dashboard through `POST /api/assistant/query`. The `src` package retrieves no-show insights from `noshow.db`, builds an evidence package from the `booking_ml_scores` table, sends the package to the configured LLM provider, and returns the answer with a provider label and an agent trace. 
+
+The current demo implementation uses OpenAI only. The API response contract is designed so future LLM providers such as Claude or Gemini can be added later without changing the dashboard request shape. If the LLM is unavailable, the same endpoint returns a deterministic fallback response.
 
 ## Communication Protocol
 
@@ -28,7 +30,7 @@ The assistant returns:
 }
 ```
 
-`provider` is `openai` when the current live LLM call succeeds and `deterministic_fallback` when the fallback path is used. Future provider values can be added behind the same response contract. The dashboard displays the provider badge, rendered Markdown answer, and collapsible agent trace.
+`provider` is `openai` when the current live OpenAI call succeeds and `deterministic_fallback` when the fallback path is used. Future provider values can be added behind the same response contract after provider-specific config, client calls, dependencies, and response normalisation are implemented. The dashboard displays the provider badge, rendered Markdown answer, and collapsible agent trace.
 
 ## Invocation Flow
 
@@ -62,7 +64,7 @@ Dashboard question
   -> Insight Agent: _build_llm_context()
   -> Intervention Agent: high_risk_bookings() + _intervention_for_booking()
   -> Executive Narrative Agent: LLM_PROMPT.md
-  -> Coordinator Agent: configured LLM provider call
+  -> Coordinator Agent: current OpenAI provider call
   -> Response: answer + provider + retrieved_insights + matched_segment_metrics + agent_trace
 ```
 
@@ -98,6 +100,16 @@ The assistant returns a `provider` field:
 - `deterministic_fallback`: the LLM call was unavailable and fallback logic answered instead
 
 The `agent_trace` field records each orchestration step so reviewers can see which roles ran and whether the final answer came from a live LLM provider, such as OpenAI today, or fallback logic.
+
+## Future LLM Provider Extension
+
+The dashboard and API response shape are provider-labeled, but the current code only implements OpenAI. To add providers such as Claude or Gemini:
+
+- add provider selection config such as `LLM_PROVIDER`
+- add provider-specific credentials and model settings to `config.py`, `.env.example`, and Docker config
+- implement provider-specific client calls in `src/assistant.py`
+- normalise provider responses to the same `answer`, `provider`, `retrieved_insights`, `matched_segment_metrics`, and `agent_trace` contract
+- add any required SDK dependencies to `requirements.txt`
 
 ## Key Files
 

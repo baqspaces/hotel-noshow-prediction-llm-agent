@@ -62,7 +62,7 @@ flowchart LR
     API --> ASSIST[AI Assistant Orchestration]
 ```
 
-The web app dashboard uses REST endpoints to query a SQLite db, segment drill-downs, operational queue rows, and assistant answers. The AI assistant currently uses an OpenAI-backed provider call with a provider-labeled response contract that can be extended to other LLM providers later. A WebSocket stream refreshes summary KPIs. The API includes health, monitoring, authentication, rate limiting, OpenAPI documentation, and Docker support.
+The web app dashboard uses REST endpoints to query a SQLite db, segment drill-downs, operational queue rows, and assistant answers. The AI assistant currently uses an OpenAI-backed provider call. The response contract is provider-labeled, so other LLM providers can be added later by implementing provider-specific config, client calls, dependencies, and response normalisation. A WebSocket stream refreshes summary KPIs. The API includes health, monitoring, authentication, rate limiting, OpenAPI documentation, and Docker support.
 
 ## Deployment Strategy
 
