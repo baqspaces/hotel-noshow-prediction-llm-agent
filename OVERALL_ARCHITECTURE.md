@@ -52,7 +52,7 @@ For a production MLOps lifecycle, this flow would be extended with:
 
 ```mermaid
 flowchart LR
-    U[Manager User] --> UI[HTML / JavaScript Dashboard]
+    U[User] --> UI[HTML / JavaScript Dashboard]
     UI --> API[FastAPI API]
     API --> AUTH[JWT Auth]
     API --> DB[(SQLite)]
