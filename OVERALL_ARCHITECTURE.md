@@ -7,13 +7,12 @@ flowchart LR
     A[noshow.db] --> B[Jupyter EDA + ML Notebook]
     B --> C[Cleaned Features]
     C --> D[Five ML Models]
-    D --> E[Random Forest Winning Risk Score]
-    E --> F[booking_ml_scores Table]
-    F --> G[FastAPI src Package]
-    G --> H[Dashboard UI]
-    G --> I[AI Insight Assistant]
-    G --> J[Swagger / OpenAPI Docs]
-    G --> K[Health + Monitoring]
+    D --> E[booking_ml_scores Table]
+    E --> F[FastAPI src Package]
+    F --> G[Dashboard UI]
+    F --> H[AI Insight Assistant]
+    F --> I[Swagger / OpenAPI Docs]
+    F --> J[Health + Monitoring]
 ```
 
 ## Data Flow
