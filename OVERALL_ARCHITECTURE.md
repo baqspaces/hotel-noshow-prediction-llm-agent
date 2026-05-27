@@ -19,7 +19,7 @@ flowchart LR
 
 The notebook loads `noshow.db`, cleans the booking fields, standardizes month values, parses price values, creates customer and price-band features, and trains five real ML models plus a dummy baseline. The five real model scores are appended to `final_scored_df`.
 
-The Random Forest ML model has the highest validation ROC-AUC among the tested models and is selected to be displayed as the `risk_score` in the web dashboard. The notebook also reports PR-AUC because this is a risk-ranking problem. We created categorical risk labels `Low`, `Medium`, and `High` according to the quantile distribution of the Random Forest ML model risk score. The notebook persists the final scored dataframe into SQLite as `booking_ml_scores`.
+The Random Forest ML model has the highest validation ROC-AUC among the tested models and is selected to be displayed as the `risk_score` in the web dashboard. The notebook also provides PR-AUC as a tie-breaker score. We created categorical risk labels `Low`, `Medium`, and `High` according to the quantile distribution of the Random Forest ML model risk score. The notebook persists the final scored dataframe into SQLite as `booking_ml_scores`.
 
 The FastAPI app reads from `booking_ml_scores` for the "Operational Queue" section of the dashboard. If the scored table is not available, the API returns a clear message asking the user to rerun the notebook ML scoring cell.
 
@@ -40,10 +40,10 @@ The current implementation demonstrates the end-to-end prototype lifecycle: the 
 
 For a production MLOps lifecycle, this flow would be extended with:
 
-- experiment tracking for model parameters, datasets, train/test splits, and evaluation metrics
-- a model registry to version approved models and record which model generated each `booking_ml_scores` refresh
 - scheduled batch scoring or retraining jobs instead of manually rerunning the notebook
 - drift monitoring for changes in booking mix, no-show rate, feature distributions, and prediction score distributions
+- experiment tracking for model parameters, datasets, train/test splits, and evaluation metrics
+- a model registry to version approved models and record which model generated each `booking_ml_scores` refresh
 - fairness and segment performance checks across countries, branches, platforms, and first-time customer status
 - automated CI/CD tests for data validation, feature schema compatibility, API responses, and model performance thresholds
 - deployment promotion gates so only validated model versions are released to the dashboard
