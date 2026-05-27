@@ -5,9 +5,6 @@ This checklist summarises practical next steps to move the prototype no-show pre
 ## Database And MLOps Lifecycle
 
 - [ ] Move from local `noshow.db` to a managed production database such as PostgreSQL, MySQL, AWS RDS, Google Cloud SQL, or Azure Database.
-- [ ] Add database migration scripts for booking tables, scored model tables, indexes, and future schema changes.
-- [ ] Add indexes for common dashboard queries such as branch, platform, country, room, risk band, and risk score.
-- [ ] Add database backups, point-in-time recovery, and restore testing.
 - [ ] Replace notebook-only scoring with a scheduled data ingestion, validation, and ML scoring pipeline, such as a Python job orchestrated by Airflow.
 - [ ] Version datasets, feature definitions, model artifacts, model metrics, and scoring outputs for auditability and rollback.
 - [ ] Add model drift monitoring for no-show prediction scores, booking mix, and segment distributions.
@@ -30,7 +27,7 @@ This checklist summarises practical next steps to move the prototype no-show pre
 - [ ] Replace demo credentials such as `manager` / `password123` with OAuth2/OpenID Connect or SSO using an identity provider such as Microsoft Entra ID, Google, Okta, or Auth0.
 - [ ] Add role-based access control for user groups such as viewer, manager, analyst, and admin.
 - [ ] Require a strong production `JWT_SECRET` and rotate any development API keys.
-- [ ] Store `OPENAI_API_KEY`, `JWT_SECRET`, database credentials, and OAuth client secrets in a managed secret store.
+- [ ] Store `OPENAI_API_KEY` (or any other LLM provider API key), `JWT_SECRET`, database credentials, and OAuth client secrets in a managed secret store.
 - [ ] Restrict CORS to the production dashboard domain only.
 - [ ] Add logout, session expiry, token refresh, and token revocation handling.
 - [ ] Remove prefilled production login values from the frontend.
@@ -57,9 +54,8 @@ This checklist summarises practical next steps to move the prototype no-show pre
 
 ## Frontend
 
-- [ ] Escape or sanitize all API and database-derived values before inserting them into HTML.
-- [ ] Add a visible logout button.
 - [ ] Handle expired tokens by clearing local storage and prompting the user to log in again.
+- [ ] Add a visible logout button.
 - [ ] Add clear loading, empty, and error states for each dashboard section.
 - [ ] Remove hardcoded demo values from production login fields.
 - [ ] Test target browser, mobile, and desktop layouts for dashboard workflows.
@@ -67,12 +63,12 @@ This checklist summarises practical next steps to move the prototype no-show pre
 
 ## Deployment And Operations
 
+- [ ] Define rollback procedures for app releases, prompt changes, data refreshes, model-score table updates, and database migrations.
+- [ ] Centralise logs, metrics, alerts, and operational runbooks.
 - [ ] Use separate configuration for development, staging, and production.
 - [ ] Add CI/CD checks for tests, Docker build, vulnerability scanning, and deployment.
 - [ ] Add a staging deployment before production deployment.
 - [ ] Add post-deployment smoke tests for `/health`, login, dashboard load, and key API endpoints.
-- [ ] Define rollback procedures for app releases, prompt changes, data refreshes, model-score table updates, and database migrations.
-- [ ] Centralise logs, metrics, alerts, and operational runbooks.
 - [ ] Monitor API latency, error rate, login failures, assistant fallback rate, LLM provider latency/cost, and database query latency.
 - [ ] Add alerts for app downtime, high 5xx error rate, database failures, and LLM provider failures.
 - [ ] Run multiple FastAPI instances behind a load balancer if high availability is required.
