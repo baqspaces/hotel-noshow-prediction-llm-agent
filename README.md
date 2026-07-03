@@ -162,7 +162,6 @@ The dashboard displays `risk_score`, which is set to `ml_risk_random_forest` (as
 
 Rerun the notebook ML scoring cell to refresh the `booking_ml_scores` table before launching the app.
 
-
 ## QA Report
 
 | Area | Check | Expected Result | Status |
