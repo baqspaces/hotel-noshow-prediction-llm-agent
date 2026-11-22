@@ -77,7 +77,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     logger.exception("unhandled_exception path=%s", request.url.path)
     return JSONResponse(
         status_code=500,
-        content={"detail": "Unexpected server error. Check visa/app/logs/app.log for the traceback."},
+        content={"detail": "Unexpected server error. Check app/logs/app.log for the traceback."},
     )
 
 

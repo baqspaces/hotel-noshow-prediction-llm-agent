@@ -1,4 +1,4 @@
-# Hotel No-Show Prediction with AI-Powered Insights Dashboard
+# Hotel No-Show Analytics
 
 This project takes data from the noshow.db to:
 1. generate high level insights on no-show patterns in SG hotels,
@@ -21,21 +21,22 @@ This project takes data from the noshow.db to:
 
 ## Setup and Run Locally
 
-From `visa/app`:
+Run these commands from the repository root.
 
 ```powershell
+Set-Location .\app
 py -m pip install -r requirements.txt
 py -m uvicorn src.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-If your machine uses `python` instead of `py`, replace `py -m` with `python -m`. Run the command from `visa/app`; running `uvicorn main:app` from inside `src` will break Python package imports.
+If your machine uses `python` instead of `py`, replace `py -m` with `python -m`. Run the command from `app/`; running `uvicorn main:app` from inside `src` will break Python package imports.
 
 ## Launch App
 
 The same app can also be launched with:
 
 ```bash
-cd visa/app
+cd app
 ./run.sh
 ```
 
@@ -86,15 +87,16 @@ http://127.0.0.1:8000/docs
 
 ## Docker
 
-From `visa/app`:
+Run these commands from the repository root.
 
 ```powershell
+Set-Location .\app
 docker compose up --build
 ```
 
 ## Common Startup Fixes
 
-If you see `ModuleNotFoundError`, install the requirements from `visa/app`:
+If you see `ModuleNotFoundError`, install the requirements from `app/`:
 
 ```powershell
 py -m pip install -r requirements.txt
@@ -125,7 +127,7 @@ If PowerShell blocks `npm`, use `npm.cmd`. This app does not require npm to run.
 
 - `OVERALL_ARCHITECTURE.md`: system architecture, data flow, model lifecycle, and deployment strategy
 - `API_DOCUMENTATION.md`: endpoint guide with request and response examples
-- `postman/visa_hotel_noshow_api.postman_collection.json`: Postman collection for manual API testing
+- `postman/hotel_noshow_api.postman_collection.json`: Postman collection for manual API testing
 - `AGENT_ARCHITECTURE.md`: agent roles, coordination logic, intervention policy, and invocation flow
 - `AGENT_EVALUATION.md`: agent performance and reliability evaluation report
 - `LLM_PROMPT.md`: editable assistant instructions, grounding rules, and response format
