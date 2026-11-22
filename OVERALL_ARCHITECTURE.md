@@ -65,4 +65,4 @@ The web app dashboard uses REST endpoints to query a SQLite db, segment drill-do
 
 ## Deployment Strategy
 
-For local review, the app can be launched with `./run.sh` from `visa/app`. For containerized review, use `docker compose up --build`. Environment-specific settings are controlled through `.env` or environment variables such as `DATABASE_URL`, `JWT_SECRET`, `DEMO_USERNAME`, and `DEMO_PASSWORD`.
+For local review, the app can be launched with `./run.sh` from `app/`. For containerized review, use `docker compose up --build`. Environment-specific settings are controlled through `.env` or environment variables such as `DATABASE_URL`, `JWT_SECRET`, `DEMO_USERNAME`, and `DEMO_PASSWORD`.

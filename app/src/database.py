@@ -44,7 +44,7 @@ def detect_booking_table() -> str:
     except OperationalError as exc:
         raise RuntimeError(
             f"Could not open booking database from DATABASE_URL={settings.database_url!r}. "
-            "Check that visa/noshow.db exists, or set DATABASE_URL to an absolute SQLite path."
+            "Check that noshow.db exists at the repository root, or set DATABASE_URL to an absolute SQLite path."
         ) from exc
 
     for table_name in table_names:

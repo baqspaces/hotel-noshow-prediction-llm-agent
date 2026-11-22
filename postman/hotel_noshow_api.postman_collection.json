@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "b5d9884c-9f2f-4e4d-a0b6-visa-noshow-demo",
-    "name": "Hotel No-Show AI API",
-    "description": "Postman collection for the Hotel No-Show Prediction with AI-Powered Insights Dashboard. Start the FastAPI app first, run Auth / Login, then run the protected analytics, risk, and assistant requests.",
+    "_postman_id": "820a3629-91c6-4ebe-8e37-834ec0777416",
+    "name": "Hotel No-Show Analytics API",
+    "description": "Postman collection for Hotel No-Show Analytics. Start the FastAPI app first, run Auth / Login, then run the protected analytics, risk, and assistant requests.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

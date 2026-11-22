@@ -7,7 +7,7 @@ try:
 except ModuleNotFoundError as exc:  # pragma: no cover - startup guidance
     missing = exc.name
     raise ModuleNotFoundError(
-        f"Missing dependency '{missing}'. From visa/app, run: py -m pip install -r requirements.txt"
+        f"Missing dependency '{missing}'. Run py -m pip install -r requirements.txt from app/."
     ) from exc
 
 
@@ -16,14 +16,14 @@ DEFAULT_DB_PATH = APP_DIR.parent / "noshow.db"
 
 
 class Settings(BaseSettings):
-    app_name: str = "Hotel No-Show Prediction AI Insights Assistant"
+    app_name: str = "Hotel No-Show Analytics"
     environment: str = Field(default="development", alias="APP_ENV")
     database_url: str = Field(
         default=f"sqlite:///{DEFAULT_DB_PATH.as_posix()}",
         alias="DATABASE_URL",
     )
     jwt_secret: str = Field(default="change-me-for-production", alias="JWT_SECRET")
-    jwt_issuer: str = "visa-noshow-demo"
+    jwt_issuer: str = "hotel-noshow-demo"
     access_token_minutes: int = 60
     demo_username: str = Field(default="manager", alias="DEMO_USERNAME")
     demo_password: str = Field(default="password123", alias="DEMO_PASSWORD")
